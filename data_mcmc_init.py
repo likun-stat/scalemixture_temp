@@ -786,8 +786,8 @@ if __name__ == "__main__":
            Z_1t_accept[:] = np.repeat(0,n_clusters)
            inv_Z_cluster_proposal=list()
            for i in np.arange(n_clusters):
-               # which_tmp = Cluster_which[i]
-               sigma_Z_cluster_proposal_nonMissing[i] = sigma_Z_cluster_proposal_nonMissing[i] + gamma2*(np.cov(Z_within_thinning[nonMissing_1t_cluster[i],:]) - sigma_Z_cluster_proposal_nonMissing[i])
+               which_tmp = np.where(Cluster_which[i])[0]
+               sigma_Z_cluster_proposal_nonMissing[i] = sigma_Z_cluster_proposal_nonMissing[i] + gamma2*(np.cov(Z_within_thinning[which_tmp[nonMissing_1t_cluster[i]],:]) - sigma_Z_cluster_proposal_nonMissing[i])
                inv_Z_cluster_proposal_nonMissing.append((cholesky(sigma_Z_cluster_proposal_nonMissing[i],lower=False),np.repeat(1,np.sum(nonMissing_1t_cluster[i]))))           
 
            sigma_m['R_1t'] = np.exp(np.log(sigma_m['R_1t']) + gamma1*(R_accept/thinning - r_opt_1d))
