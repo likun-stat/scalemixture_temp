@@ -30,9 +30,9 @@ Created on Fri Jun 25 12:08:19 2021
       
 
 if __name__ == "__main__":
-   import scalemixture_spline.integrate as utils
-   import scalemixture_spline.priors as priors
-   import scalemixture_spline.generic_samplers as sampler
+   import scalemixture_temp.integrate as utils
+   import scalemixture_temp.priors as priors
+   import scalemixture_temp.generic_samplers as sampler
    import os
    import numpy as np
    import matplotlib.pyplot as plt
