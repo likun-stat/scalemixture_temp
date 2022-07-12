@@ -482,9 +482,12 @@ if __name__ == "__main__":
        if rank==0:
            log_num = np.sum(star_lik_recv)
            log_denom = np.sum(current_lik_recv)
-           r = np.exp(log_num - log_denom)
-           if ~np.isfinite(r):
-               r = 0
+           if log_num>log_denom:
+               r=1
+           else:
+               r = np.exp(log_num - log_denom)
+               if ~np.isfinite(r):
+                    r = 0
            if random_generator.uniform(0,1,1)<r:
                theta_c[:] = theta_c_star
                current_lik_recv[:] = star_lik_recv
