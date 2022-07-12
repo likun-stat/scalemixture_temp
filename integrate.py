@@ -1738,7 +1738,7 @@ def loc1_vec_gev_update_mixture_me_likelihood(data, params, X_s, cen, cen_above,
   
   # If the parameters imply support that is not consistent with the data,
   # then reject the parameters.
-  if if np.any(Y[~np.isnan(Y)] > max_support[~np.isnan(Y)]) or np.nanmin(tmp)<prob_below-0.001 or np.nanmax(tmp)>prob_above+0.001:
+  if np.any(Y[~np.isnan(Y)] > max_support[~np.isnan(Y)]) or np.nanmin(tmp)<prob_below-0.001 or np.nanmax(tmp)>prob_above+0.001:
       return -np.inf
   
   X = X_update(Y, cen, cen_above, delta, tau_sqd, Loc, Scale, Shape)
@@ -1767,7 +1767,7 @@ def beta_loc1_vec_gev_update_mixture_me_likelihood_interp(data, params, Design_m
   
   # If the parameters imply support that is not consistent with the data,
   # then reject the parameters.
-  if if np.any(Y[~np.isnan(Y)] > max_support[~np.isnan(Y)]) or np.nanmin(tmp)<prob_below-0.001 or np.nanmax(tmp)>prob_above+0.001:
+  if np.any(Y[~np.isnan(Y)] > max_support[~np.isnan(Y)]) or np.nanmin(tmp)<prob_below-0.001 or np.nanmax(tmp)>prob_above+0.001:
       return -np.inf
   
   X = X_update(Y, cen, cen_above, delta, tau_sqd, Loc, Scale, Shape)
@@ -1797,7 +1797,7 @@ def beta_loc2_vec_gev_update_mixture_me_likelihood_interp(data, params, Design_m
   
   # If the parameters imply support that is not consistent with the data,
   # then reject the parameters.
-  if if np.any(Y[~np.isnan(Y)] > max_support[~np.isnan(Y)]) or np.nanmin(tmp)<prob_below-0.001 or np.nanmax(tmp)>prob_above+0.001:
+  if np.any(Y[~np.isnan(Y)] > max_support[~np.isnan(Y)]) or np.nanmin(tmp)<prob_below-0.001 or np.nanmax(tmp)>prob_above+0.001:
       return -np.inf
   
   X = X_update(Y, cen, cen_above, delta, tau_sqd, Loc, Scale, Shape)
@@ -1827,7 +1827,7 @@ def beta_loc3_vec_gev_update_mixture_me_likelihood_interp(data, params, Design_m
   
   # If the parameters imply support that is not consistent with the data,
   # then reject the parameters.
-  if if np.any(Y[~np.isnan(Y)] > max_support[~np.isnan(Y)]) or np.nanmin(tmp)<prob_below-0.001 or np.nanmax(tmp)>prob_above+0.001:
+  if np.any(Y[~np.isnan(Y)] > max_support[~np.isnan(Y)]) or np.nanmin(tmp)<prob_below-0.001 or np.nanmax(tmp)>prob_above+0.001:
       return -np.inf
   
   X = X_update(Y, cen, cen_above, delta, tau_sqd, Loc, Scale, Shape)
@@ -1856,7 +1856,7 @@ def mu_loc1_vec_gev_update_mixture_me_likelihood_interp(data, params, Design_mat
   
   # If the parameters imply support that is not consistent with the data,
   # then reject the parameters.
-  if if np.any(Y[~np.isnan(Y)] > max_support[~np.isnan(Y)]) or np.nanmin(tmp)<prob_below-0.001 or np.nanmax(tmp)>prob_above+0.001:
+  if np.any(Y[~np.isnan(Y)] > max_support[~np.isnan(Y)]) or np.nanmin(tmp)<prob_below-0.001 or np.nanmax(tmp)>prob_above+0.001:
       return -np.inf
   
   X = X_update(Y, cen, cen_above, delta, tau_sqd, Loc, Scale, Shape)
@@ -2035,7 +2035,7 @@ def scale_vec_gev_update_mixture_me_likelihood(data, params, X_s, cen, cen_above
   
   # If the parameters imply support that is not consistent with the data,
   # then reject the parameters.
-  if if np.any(Y[~np.isnan(Y)] > max_support[~np.isnan(Y)]) or np.nanmin(tmp)<prob_below-0.001 or np.nanmax(tmp)>prob_above+0.001:
+  if np.any(Y[~np.isnan(Y)] > max_support[~np.isnan(Y)]) or np.nanmin(tmp)<prob_below-0.001 or np.nanmax(tmp)>prob_above+0.001:
       return -np.inf
   
   X = X_update(Y, cen, cen_above, delta, tau_sqd, Loc, Scale, Shape)
@@ -2065,7 +2065,7 @@ def beta_logscale0_vec_gev_update_mixture_me_likelihood_interp(data, params, Des
   
   # If the parameters imply support that is not consistent with the data,
   # then reject the parameters.
-  if if np.any(Y[~np.isnan(Y)] > max_support[~np.isnan(Y)]) or np.nanmin(tmp)<prob_below-0.001 or np.nanmax(tmp)>prob_above+0.001:
+  if np.any(Y[~np.isnan(Y)] > max_support[~np.isnan(Y)]) or np.nanmin(tmp)<prob_below-0.001 or np.nanmax(tmp)>prob_above+0.001:
       return -np.inf
   
   X = X_update(Y, cen, cen_above, delta, tau_sqd, Loc, Scale, Shape)
@@ -2097,7 +2097,7 @@ def beta_logscale1_vec_gev_update_mixture_me_likelihood_interp(data, params, Des
   
   # If the parameters imply support that is not consistent with the data,
   # then reject the parameters.
-  if if np.any(Y[~np.isnan(Y)] > max_support[~np.isnan(Y)]) or np.nanmin(tmp)<prob_below-0.001 or np.nanmax(tmp)>prob_above+0.001:
+  if np.any(Y[~np.isnan(Y)] > max_support[~np.isnan(Y)]) or np.nanmin(tmp)<prob_below-0.001 or np.nanmax(tmp)>prob_above+0.001:
       return -np.inf
   
   X = X_update(Y, cen, cen_above, delta, tau_sqd, Loc, Scale, Shape)
@@ -2128,7 +2128,7 @@ def beta_logscale2_vec_gev_update_mixture_me_likelihood_interp(data, params, Des
   
   # If the parameters imply support that is not consistent with the data,
   # then reject the parameters.
-  if if np.any(Y[~np.isnan(Y)] > max_support[~np.isnan(Y)]) or np.nanmin(tmp)<prob_below-0.001 or np.nanmax(tmp)>prob_above+0.001:
+  if np.any(Y[~np.isnan(Y)] > max_support[~np.isnan(Y)]) or np.nanmin(tmp)<prob_below-0.001 or np.nanmax(tmp)>prob_above+0.001:
       return -np.inf
   
   X = X_update(Y, cen, cen_above, delta, tau_sqd, Loc, Scale, Shape)
@@ -2158,7 +2158,7 @@ def mu_scale_vec_gev_update_mixture_me_likelihood_interp(data, params, Design_ma
   
   # If the parameters imply support that is not consistent with the data,
   # then reject the parameters.
-  if if np.any(Y[~np.isnan(Y)] > max_support[~np.isnan(Y)]) or np.nanmin(tmp)<prob_below-0.001 or np.nanmax(tmp)>prob_above+0.001:
+  if np.any(Y[~np.isnan(Y)] > max_support[~np.isnan(Y)]) or np.nanmin(tmp)<prob_below-0.001 or np.nanmax(tmp)>prob_above+0.001:
       return -np.inf
   
   X = X_update(Y, cen, cen_above, delta, tau_sqd, Loc, Scale, Shape)
@@ -2346,7 +2346,7 @@ def shape_vec_gev_update_mixture_me_likelihood(data, params, X_s, cen, cen_above
   
   # If the parameters imply support that is not consistent with the data,
   # then reject the parameters.
-  if if np.any(Y[~np.isnan(Y)] > max_support[~np.isnan(Y)]) or np.nanmin(tmp)<prob_below-0.001 or np.nanmax(tmp)>prob_above+0.001:
+  if np.any(Y[~np.isnan(Y)] > max_support[~np.isnan(Y)]) or np.nanmin(tmp)<prob_below-0.001 or np.nanmax(tmp)>prob_above+0.001:
       return -np.inf
   
   X = X_update(Y, cen, cen_above, delta, tau_sqd, Loc, Scale, Shape)
@@ -2375,7 +2375,7 @@ def beta_shape_vec_gev_update_mixture_me_likelihood_interp(data, params, Design_
   
   # If the parameters imply support that is not consistent with the data,
   # then reject the parameters.
-  if if np.any(Y[~np.isnan(Y)] > max_support[~np.isnan(Y)]) or np.nanmin(tmp)<prob_below-0.001 or np.nanmax(tmp)>prob_above+0.001:
+  if np.any(Y[~np.isnan(Y)] > max_support[~np.isnan(Y)]) or np.nanmin(tmp)<prob_below-0.001 or np.nanmax(tmp)>prob_above+0.001:
       return -np.inf
   
   X = X_update(Y, cen, cen_above, delta, tau_sqd, Loc, Scale, Shape)
@@ -2404,7 +2404,7 @@ def mu_shape_vec_gev_update_mixture_me_likelihood_interp(data, params, Design_ma
   
   # If the parameters imply support that is not consistent with the data,
   # then reject the parameters.
-  if if np.any(Y[~np.isnan(Y)] > max_support[~np.isnan(Y)]) or np.nanmin(tmp)<prob_below-0.001 or np.nanmax(tmp)>prob_above+0.001:
+  if np.any(Y[~np.isnan(Y)] > max_support[~np.isnan(Y)]) or np.nanmin(tmp)<prob_below-0.001 or np.nanmax(tmp)>prob_above+0.001:
       return -np.inf
   
   X = X_update(Y, cen, cen_above, delta, tau_sqd, Loc, Scale, Shape)
