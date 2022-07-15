@@ -1424,18 +1424,15 @@ def theta_c_param_updata_me_likelihood(data, param, nu, mean, Cluster_which, S_c
 def theta_c_update_mixture_me_likelihood_1t(Z_onetime, params, sill, Cluster_which, S_clusters_nonMissing, nonMissing_1t_cluster):
     if len(Z_onetime.shape)==1:
         Z_onetime = Z_onetime.reshape((Z_onetime.shape[0],1))
-    n_t = Z_onetime.shape[1]
-    n_s = Z_onetime.shape[0]
     n_clusters = len(S_clusters_nonMissing)
     ll = np.empty(n_clusters)
     ll[:]=np.nan
     for cluster_num in np.arange(n_clusters):
         which = Cluster_which[cluster_num]
         tmp_nonMissing = nonMissing_1t_cluster[cluster_num]
-        zero_mean_tmp = np.repeat(0, np.sum(tmp_nonMissing))
         Cor_tmp = corr_fn(S_clusters_nonMissing[cluster_num], params)
         cholesky_inv = (cholesky(Cor_tmp,lower=False),np.repeat(1,Cor_tmp.shape[0]))
-        ll[cluster_num] = dmvn(Z_onetime[which][tmp_nonMissing], Cor_tmp, mean = zero_mean_tmp, cholesky_inv = cholesky_inv)
+        ll[cluster_num] = dmvn(Z_onetime[which][tmp_nonMissing], Cor_tmp, mean = 0, cholesky_inv = cholesky_inv)
         
     return np.sum(ll)
  
