@@ -42,7 +42,7 @@ if __name__ == "__main__":
    # from scipy.stats import norm
    # from scipy.stats import invgamma  
    from scipy.linalg import cholesky
-   np.seterr(invalid='ignore')
+   np.seterr(invalid='ignore', divide = 'ignore')
    
    # Check whether the 'mpi4py' is installed
    test_mpi = os.system("python -c 'from mpi4py import *' &> /dev/null")
