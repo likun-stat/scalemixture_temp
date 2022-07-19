@@ -42,7 +42,7 @@ if __name__ == "__main__":
    # from scipy.stats import norm
    # from scipy.stats import invgamma  
    from scipy.linalg import cholesky
-   np.seterr(invalid='ignore', divide = 'ignore')
+   np.seterr(invalid='ignore', over = 'ignore')
    
    # Check whether the 'mpi4py' is installed
    test_mpi = os.system("python -c 'from mpi4py import *' &> /dev/null")
@@ -56,6 +56,7 @@ if __name__ == "__main__":
    comm = MPI.COMM_WORLD
    rank = comm.Get_rank()
    size = comm.Get_size()
+   # rank=0; size=68
    thinning = 10; echo_interval = 50; n_updates = 40001
   
    # Load data input
@@ -632,7 +633,7 @@ if __name__ == "__main__":
            Scale = Scale.reshape((n_s,n_t),order='F')
             
             
-           # Update beta_scale and beta_shape
+           # Update beta_shape
            for cluster_num in np.arange(n_beta_clusters):
                beta_shape_accept[cluster_num] += utils.update_beta_shape_GEV_one_cluster_interp(beta_shape, betaCluster_which, cluster_num, inv_beta_shape_cluster_proposal,
                                                                             Design_mat, sbeta_shape, Y, X_s, cen, cen_above, prob_below, prob_above, delta, tau_sqd,

@@ -415,7 +415,8 @@ def density_interp_grid(delta, tau_sqd, grid_size=400):
     
     xp = np.ascontiguousarray(xp, np.float64) #C contiguous order: xp.flags['C_CONTIGUOUS']=True?
     den_p = dmixture_me(xp, delta, tau_sqd)
-    return (xp, den_p)
+    non_na = np.isfinite(den_p)
+    return (xp[non_na], den_p[non_na])
 
 
 def dmixture_me_interpo(xvals, xp, den_p):
