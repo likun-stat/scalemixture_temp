@@ -473,6 +473,8 @@ if __name__ == "__main__":
            theta_c_star = theta_c + np.matmul(tmp_upper.T , tmp_params_star)
        theta_c_star = comm.bcast(theta_c_star, root=0)
        
+       current_lik = utils.theta_c_update_mixture_me_likelihood_1t(Z_onetime, theta_c, 1, Cluster_which, 
+                                    S_clusters_nonMissing, nonMissing_1t_cluster)
        if np.all(np.logical_and(theta_c_star>hyper_params_theta_c[0],
                                 theta_c_star<hyper_params_theta_c[1])):
            star_lik = utils.theta_c_update_mixture_me_likelihood_1t(Z_onetime, theta_c_star, 1, Cluster_which, 
@@ -480,6 +482,7 @@ if __name__ == "__main__":
        else:
            star_lik= -np.inf
        star_lik_recv = comm.gather(star_lik, root=0)  
+       current_lik_recv = comm.gather(current_lik, root=0)
        
        if rank==0:
            log_num = np.sum(star_lik_recv)
@@ -492,7 +495,7 @@ if __name__ == "__main__":
                     r = 0
            if random_generator.uniform(0,1,1)<r:
                theta_c[:] = theta_c_star
-               current_lik_recv[:] = star_lik_recv
+               # current_lik_recv[:] = star_lik_recv
                accept = 1
                theta_c_accept = theta_c_accept + 1
            theta_c_trace_within_thinning[:, index_within] = theta_c
@@ -500,7 +503,7 @@ if __name__ == "__main__":
        # Broadcast according to accept
        accept = comm.bcast(accept,root=0)
        if accept==1:
-           current_lik = star_lik
+           # current_lik = star_lik
            theta_c[:] = theta_c_star
            Cor_Z_clusters_nonMissing=list()
            inv_Z_cluster_nonMissing=list()
