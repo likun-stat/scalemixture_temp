@@ -469,7 +469,7 @@ if __name__ == "__main__":
    # --------------------------- Start Metropolis Updates ------------------------------
    # -----------------------------------------------------------------------------------
    # -----------------------------------------------------------------------------------
-   for iter in np.arange(1,n_updates):
+   for iter in np.arange(iter_current+1,n_updates):
        index_within = (iter-1)%thinning
        # Update X
        # print(str(rank)+" "+str(iter)+" Gathered? "+str(np.where(~cen)))
