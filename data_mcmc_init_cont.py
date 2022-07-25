@@ -131,7 +131,7 @@ if __name__ == "__main__":
            sigma_Z_cluster_proposal_nonMissing = load(f)
            f.close()
            
-           Z_onetime = Z_1t_trace[:,len(delta_trace)]
+           Z_onetime = Z_1t_trace[:,len(delta_trace)-1]
            if(len(delta_trace)<n_updates_thinned):
                add_length = n_updates_thinned - len(delta_trace)
                 
@@ -184,7 +184,7 @@ if __name__ == "__main__":
            sigma_Z_cluster_proposal_nonMissing = load(f)
            f.close()
            
-           Z_onetime = Z_1t_trace[:,Z_1t_trace.shape[0]]
+           Z_onetime = Z_1t_trace[:,Z_1t_trace.shape[0]-1]
            if(Z_1t_trace.shape[0]<n_updates_thinned):
                add_length = n_updates_thinned - Z_1t_trace.shape[0]
                Z_1t_trace = np.pad(Z_1t_trace, ((0,0),(0,add_length)),'constant', constant_values=np.nan)
