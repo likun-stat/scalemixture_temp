@@ -130,7 +130,8 @@ if __name__ == "__main__":
            sigma_beta_shape_cluster_proposal = load(f)
            sigma_Z_cluster_proposal_nonMissing = load(f)
            f.close()
-           
+           iter_current = 22500
+           R_onetime = R_1t_trace[np.int(np.ceil(iter_current/thinning))-1]
            Z_onetime = Z_1t_trace[:,np.int(np.ceil(iter_current/thinning))-1]
            if(len(delta_trace)<n_updates_thinned):
                add_length = n_updates_thinned - len(delta_trace)
@@ -183,7 +184,9 @@ if __name__ == "__main__":
            R_onetime = load(f)
            sigma_Z_cluster_proposal_nonMissing = load(f)
            f.close()
+           iter_current = 22500
            
+           R_onetime = R_1t_trace[np.int(np.ceil(iter_current/thinning))-1]
            Z_onetime = Z_1t_trace[:,np.int(np.ceil(iter_current/thinning))-1]
            if(Z_1t_trace.shape[1]<n_updates_thinned):
                add_length = n_updates_thinned - Z_1t_trace.shape[1]
@@ -227,6 +230,11 @@ if __name__ == "__main__":
    ## -------------------------------------------------------
    delta = initial_values['delta']
    tau_sqd = initial_values['tau_sqd']
+   if rank==0:
+        delta = delta_trace[np.int(np.ceil(iter_current/thinning))-1]
+        tau_sqd = tau_sqd_trace[np.int(np.ceil(iter_current/thinning))-1]
+   delta = comm.bcast(delta,root=0)
+   tau_sqd = comm.bcast(tau_sqd,root=0)
    prob_below = initial_values['prob_below']
    prob_above = initial_values['prob_above']
    grid = utils.density_interp_grid(delta, tau_sqd)
@@ -262,21 +270,41 @@ if __name__ == "__main__":
    beta_logscale1 = initial_values['beta_logscale1']
    beta_logscale2 = initial_values['beta_logscale2']
    beta_shape = initial_values['beta_shape']
-   # mu_loc0 = initial_values['mu_loc0']
-   # mu_loc1 = initial_values['mu_loc1']
-   # mu_scale = initial_values['mu_scale']
-   # mu_shape = initial_values['mu_shape']
+   theta_c = np.empty(2)
+   if rank==0:
+        beta_loc0 = beta_loc0_trace[:, np.int(np.ceil(iter_current/thinning))-1]
+        beta_loc1 = beta_loc1_trace[:, np.int(np.ceil(iter_current/thinning))-1]
+        beta_loc2 = beta_loc2_trace[:, np.int(np.ceil(iter_current/thinning))-1]
+        beta_loc3 = beta_loc3_trace[:, np.int(np.ceil(iter_current/thinning))-1]
+        beta_logscale0 = beta_logscale0_trace[:, np.int(np.ceil(iter_current/thinning))-1]
+        beta_logscale1 = beta_logscale1_trace[:, np.int(np.ceil(iter_current/thinning))-1]
+        beta_logscale2 = beta_logscale2_trace[:, np.int(np.ceil(iter_current/thinning))-1]
+        beta_shape = beta_shape_trace[:, np.int(np.ceil(iter_current/thinning))-1]
+        # mu_loc0 = initial_values['mu_loc0']
+        # mu_loc1 = initial_values['mu_loc1']
+        # mu_scale = initial_values['mu_scale']
+        # mu_shape = initial_values['mu_shape']
    
    
-   theta_c = initial_values['theta_c']
-   sbeta_loc0 = initial_values['sbeta_loc0']
-   sbeta_loc1 = initial_values['sbeta_loc1']
-   sbeta_loc2 = initial_values['sbeta_loc2']
-   sbeta_loc3 = initial_values['sbeta_loc3']
-   sbeta_logscale0 = initial_values['sbeta_logscale0']
-   sbeta_logscale1 = initial_values['sbeta_logscale1']
-   sbeta_logscale2 = initial_values['sbeta_logscale2']
-   sbeta_shape = initial_values['sbeta_shape']
+        theta_c = theta_c_trace[:, np.int(np.ceil(iter_current/thinning))-1]
+        sbeta_loc0 = sigma_sbeta_loc0_trace[np.int(np.ceil(iter_current/thinning))-1]
+        sbeta_loc1 = sigma_sbeta_loc1_trace[np.int(np.ceil(iter_current/thinning))-1]
+        sbeta_loc2 = sigma_sbeta_loc2_trace[np.int(np.ceil(iter_current/thinning))-1]
+        sbeta_loc3 = sigma_sbeta_loc3_trace[np.int(np.ceil(iter_current/thinning))-1]
+        sbeta_logscale0 = sigma_sbeta_logscale0_trace[np.int(np.ceil(iter_current/thinning))-1]
+        sbeta_logscale1 = sigma_sbeta_logscale1_trace[np.int(np.ceil(iter_current/thinning))-1]
+        sbeta_logscale2 = sigma_sbeta_logscale2_trace[np.int(np.ceil(iter_current/thinning))-1]
+        sbeta_shape = sigma_sbeta_shape_trace[np.int(np.ceil(iter_current/thinning))-1]
+   
+   beta_loc0 = comm.bcast(beta_loc0,root=0)
+   beta_loc1 = comm.bcast(beta_loc1,root=0)
+   beta_loc2 = comm.bcast(beta_loc2,root=0)
+   beta_loc3 = comm.bcast(beta_loc3,root=0)
+   beta_logscale0 = comm.bcast(beta_logscale0,root=0)
+   beta_logscale1 = comm.bcast(beta_logscale1,root=0)
+   beta_logscale2 = comm.bcast(beta_logscale2,root=0)
+   beta_shape = comm.bcast(beta_shape,root=0)
+   theta_c = comm.bcast(theta_c,root=0)
    
    Cluster_which = initial_values['Cluster_which']
    S_clusters = initial_values['S_clusters']
@@ -294,8 +322,7 @@ if __name__ == "__main__":
    wh_to_plot_Xs = n_s*np.array([0.25,0.5,0.75])
    wh_to_plot_Xs = wh_to_plot_Xs.astype(int)
 
-   delta = comm.bcast(delta,root=0)
-   tau_sqd = comm.bcast(tau_sqd,root=0)
+   
    if prob_below==0:
         thresh_X = -np.inf
    else:
@@ -318,42 +345,42 @@ if __name__ == "__main__":
    inv_beta_loc0_cluster_proposal=list()
    for i in np.arange(n_beta_clusters):
        which_tmp = betaCluster_which[i]
-       inv_beta_loc0_cluster_proposal.append((np.diag(np.repeat(1, sum(which_tmp))),np.repeat(1,sum(which_tmp))))       
+       if rank==0: inv_beta_loc0_cluster_proposal.append((cholesky(sigma_beta_loc0_cluster_proposal[i],lower=False),np.repeat(1,np.sum(which_tmp))))
    
    inv_beta_loc1_cluster_proposal=list()
    for i in np.arange(n_beta_clusters):
        which_tmp = betaCluster_which[i]
-       inv_beta_loc1_cluster_proposal.append((np.diag(np.repeat(1, sum(which_tmp))),np.repeat(1,sum(which_tmp))))       
+       if rank==0: inv_beta_loc1_cluster_proposal.append((cholesky(sigma_beta_loc1_cluster_proposal[i],lower=False),np.repeat(1,np.sum(which_tmp))))
 
    inv_beta_loc2_cluster_proposal=list()
    for i in np.arange(n_beta_clusters):
        which_tmp = betaCluster_which[i]
-       inv_beta_loc2_cluster_proposal.append((np.diag(np.repeat(1, sum(which_tmp))),np.repeat(1,sum(which_tmp))))       
+       if rank==0: inv_beta_loc2_cluster_proposal.append((cholesky(sigma_beta_loc2_cluster_proposal[i],lower=False),np.repeat(1,np.sum(which_tmp))))
    
    inv_beta_loc3_cluster_proposal=list()
    for i in np.arange(n_beta_clusters):
        which_tmp = betaCluster_which[i]
-       inv_beta_loc3_cluster_proposal.append((np.diag(np.repeat(1, sum(which_tmp))),np.repeat(1,sum(which_tmp))))       
+       if rank==0: inv_beta_loc3_cluster_proposal.append((cholesky(sigma_beta_loc3_cluster_proposal[i],lower=False),np.repeat(1,np.sum(which_tmp))))
     
    inv_beta_logscale0_cluster_proposal=list()
    for i in np.arange(n_beta_clusters):
        which_tmp = betaCluster_which[i]
-       inv_beta_logscale0_cluster_proposal.append((np.diag(np.repeat(1, sum(which_tmp))),np.repeat(1,sum(which_tmp))))       
+       if rank==0: inv_beta_logscale0_cluster_proposal.append((cholesky(sigma_beta_logscale0_cluster_proposal[i],lower=False),np.repeat(1,np.sum(which_tmp))))
      
    inv_beta_logscale1_cluster_proposal=list()
    for i in np.arange(n_beta_clusters):
        which_tmp = betaCluster_which[i]
-       inv_beta_logscale1_cluster_proposal.append((np.diag(np.repeat(1, sum(which_tmp))),np.repeat(1,sum(which_tmp))))       
+       if rank==0: inv_beta_logscale1_cluster_proposal.append((cholesky(sigma_beta_logscale1_cluster_proposal[i],lower=False),np.repeat(1,np.sum(which_tmp))))
    
    inv_beta_logscale2_cluster_proposal=list()
    for i in np.arange(n_beta_clusters):
        which_tmp = betaCluster_which[i]
-       inv_beta_logscale2_cluster_proposal.append((np.diag(np.repeat(1, sum(which_tmp))),np.repeat(1,sum(which_tmp))))       
+       if rank==0: inv_beta_logscale2_cluster_proposal.append((cholesky(sigma_beta_logscale2_cluster_proposal[i],lower=False),np.repeat(1,np.sum(which_tmp))))
 
    inv_beta_shape_cluster_proposal=list()
    for i in np.arange(n_beta_clusters):
        which_tmp = betaCluster_which[i]
-       inv_beta_shape_cluster_proposal.append((np.diag(np.repeat(1, sum(which_tmp))),np.repeat(1,sum(which_tmp))))       
+       if rank==0: inv_beta_shape_cluster_proposal.append((cholesky(sigma_beta_shape_cluster_proposal[i],lower=False),np.repeat(1,np.sum(which_tmp))))
  
    Cor_Z_clusters_nonMissing=list()
    inv_Z_cluster_nonMissing=list()
@@ -361,7 +388,7 @@ if __name__ == "__main__":
    S_clusters_nonMissing = list()
    inv_Z_cluster_proposal_nonMissing = list()
    
-   theta_c = comm.bcast(theta_c,root=0)
+   
    for i in np.arange(n_clusters):
         tmp_nonMissing = ~np.isnan(Y[Cluster_which[i],rank])
         nonMissing_1t_cluster.append(tmp_nonMissing)
@@ -382,14 +409,7 @@ if __name__ == "__main__":
    Z_within_thinning = np.empty((n_s,thinning)); Z_within_thinning[:] = np.nan
 
    # Marginal GEV parameters: per location x time
-   beta_loc0 = comm.bcast(beta_loc0,root=0)
-   beta_loc1 = comm.bcast(beta_loc1,root=0)
-   beta_loc2 = comm.bcast(beta_loc2,root=0)
-   beta_loc3 = comm.bcast(beta_loc3,root=0)
-   beta_logscale0 = comm.bcast(beta_logscale0,root=0)
-   beta_logscale1 = comm.bcast(beta_logscale1,root=0)
-   beta_logscale2 = comm.bcast(beta_logscale2,root=0)
-   beta_shape = comm.bcast(beta_shape,root=0)
+   
    
    loc0 = Design_mat @beta_loc0
    loc1 = Design_mat @beta_loc1
@@ -485,6 +505,13 @@ if __name__ == "__main__":
        Z_within_thinning[:, index_within] = Z_onetime
       
        # Update R
+       tmp = utils.Rt_update_mixture_me_likelihood_interp1(Y_onetime, R_onetime, X_onetime, Z_onetime,
+                    cen[:,rank], cen_above[:,rank], prob_below, prob_above,
+                    Loc[:,rank], Scale[:,rank], Shape[:,rank], delta, tau_sqd,
+                    xp, den_p, thresh_X, thresh_X_above)
+       
+       if len(tmp[0])>0: print('Y',rank, Y_onetime[tmp[0]],'\n', 'R',rank, R_onetime,'\n', 'X',rank, X_onetime[tmp[0]],'\n', 'Z', rank, Z_onetime[tmp[0]],'\n', 'loc',rank, Loc[tmp[0],rank],'\n','scale',rank, Scale[tmp[0],rank],'\n', 'shape',rank, Shape[tmp[0],rank],'\n', 'sigma_m',rank, sigma_m_Z_cluster[cluster_num])
+
        Metr_R = sampler.static_metr(Y_onetime, R_onetime, utils.Rt_update_mixture_me_likelihood_interp,
                            priors.R_prior, 1, 2,
                            random_generator,
@@ -565,6 +592,8 @@ if __name__ == "__main__":
            # print('beta_shape_accept=',beta_shape_accept, ', iter=', iter)
 
            # Update delta
+           #print('sigma_m_delta',sigma_m['delta'])
+           #print('delta',delta)
            Metr_delta = sampler.static_metr(Y, delta, utils.delta_update_mixture_me_likelihood_interp, priors.interval_unif,
                    hyper_params_delta, 2,
                    random_generator,
@@ -598,6 +627,7 @@ if __name__ == "__main__":
            
            # Update beta_loc0
            for cluster_num in np.arange(n_beta_clusters):
+               print('sigma_m_beta_loc0', sigma_m_beta_loc0_cluster[cluster_num])
                beta_loc0_accept[cluster_num] += utils.update_beta_loc0_GEV_one_cluster_interp(beta_loc0, betaCluster_which, cluster_num, inv_beta_loc0_cluster_proposal,
                                                                             Design_mat, sbeta_loc0, Y, X_s, cen, cen_above, prob_below, prob_above, delta, tau_sqd,
                                                                             loc1, loc2, loc3, Scale, Shape, WMGHGs, PDSI, ELI_summer_average, xp, den_p, thresh_X, thresh_X_above, 
