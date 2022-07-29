@@ -130,7 +130,7 @@ if __name__ == "__main__":
            sigma_beta_shape_cluster_proposal = load(f)
            sigma_Z_cluster_proposal_nonMissing = load(f)
            f.close()
-           iter_current = 22500
+           
            R_onetime = R_1t_trace[np.int(np.ceil(iter_current/thinning))-1]
            Z_onetime = Z_1t_trace[:,np.int(np.ceil(iter_current/thinning))-1]
            if(len(delta_trace)<n_updates_thinned):
@@ -184,7 +184,6 @@ if __name__ == "__main__":
            R_onetime = load(f)
            sigma_Z_cluster_proposal_nonMissing = load(f)
            f.close()
-           iter_current = 22500
            
            R_onetime = R_1t_trace[np.int(np.ceil(iter_current/thinning))-1]
            Z_onetime = Z_1t_trace[:,np.int(np.ceil(iter_current/thinning))-1]
@@ -505,12 +504,12 @@ if __name__ == "__main__":
        Z_within_thinning[:, index_within] = Z_onetime
       
        # Update R
-       tmp = utils.Rt_update_mixture_me_likelihood_interp1(Y_onetime, R_onetime, X_onetime, Z_onetime,
-                    cen[:,rank], cen_above[:,rank], prob_below, prob_above,
-                    Loc[:,rank], Scale[:,rank], Shape[:,rank], delta, tau_sqd,
-                    xp, den_p, thresh_X, thresh_X_above)
+       # tmp = utils.Rt_update_mixture_me_likelihood_interp1(Y_onetime, R_onetime, X_onetime, Z_onetime,
+       #              cen[:,rank], cen_above[:,rank], prob_below, prob_above,
+       #              Loc[:,rank], Scale[:,rank], Shape[:,rank], delta, tau_sqd,
+       #              xp, den_p, thresh_X, thresh_X_above)
        
-       if len(tmp[0])>0: print('Y',rank, Y_onetime[tmp[0]],'\n', 'R',rank, R_onetime,'\n', 'X',rank, X_onetime[tmp[0]],'\n', 'Z', rank, Z_onetime[tmp[0]],'\n', 'loc',rank, Loc[tmp[0],rank],'\n','scale',rank, Scale[tmp[0],rank],'\n', 'shape',rank, Shape[tmp[0],rank],'\n', 'sigma_m',rank, sigma_m_Z_cluster[cluster_num])
+       # if len(tmp[0])>0: print('Y',rank, Y_onetime[tmp[0]],'\n', 'R',rank, R_onetime,'\n', 'X',rank, X_onetime[tmp[0]],'\n', 'Z', rank, Z_onetime[tmp[0]],'\n', 'loc',rank, Loc[tmp[0],rank],'\n','scale',rank, Scale[tmp[0],rank],'\n', 'shape',rank, Shape[tmp[0],rank],'\n', 'sigma_m',rank, sigma_m_Z_cluster[cluster_num])
 
        Metr_R = sampler.static_metr(Y_onetime, R_onetime, utils.Rt_update_mixture_me_likelihood_interp,
                            priors.R_prior, 1, 2,
@@ -589,11 +588,8 @@ if __name__ == "__main__":
            Z[:] = np.vstack(Z_recv).T
            R[:] = R_recv
            
-           # print('beta_shape_accept=',beta_shape_accept, ', iter=', iter)
 
            # Update delta
-           #print('sigma_m_delta',sigma_m['delta'])
-           #print('delta',delta)
            Metr_delta = sampler.static_metr(Y, delta, utils.delta_update_mixture_me_likelihood_interp, priors.interval_unif,
                    hyper_params_delta, 2,
                    random_generator,
@@ -627,7 +623,6 @@ if __name__ == "__main__":
            
            # Update beta_loc0
            for cluster_num in np.arange(n_beta_clusters):
-               print('sigma_m_beta_loc0', sigma_m_beta_loc0_cluster[cluster_num])
                beta_loc0_accept[cluster_num] += utils.update_beta_loc0_GEV_one_cluster_interp(beta_loc0, betaCluster_which, cluster_num, inv_beta_loc0_cluster_proposal,
                                                                             Design_mat, sbeta_loc0, Y, X_s, cen, cen_above, prob_below, prob_above, delta, tau_sqd,
                                                                             loc1, loc2, loc3, Scale, Shape, WMGHGs, PDSI, ELI_summer_average, xp, den_p, thresh_X, thresh_X_above, 
@@ -786,7 +781,6 @@ if __name__ == "__main__":
            # cen[:] = utils.which_censored(Y, Loc, Scale, Shape, prob_below)
            # cen_above[:] = utils.which_censored(Y, Loc, Scale, Shape, prob_above)
            
-           # print(str(iter)+" Freshly updated: "+str(np.where(~cen)))
        # *** Broadcast items ***
        delta = comm.bcast(delta,root=0)
        tau_sqd = comm.bcast(tau_sqd,root=0)
