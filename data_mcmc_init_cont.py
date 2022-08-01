@@ -398,7 +398,7 @@ if __name__ == "__main__":
         cholesky_inv = (cholesky(Cor_tmp,lower=False),np.repeat(1,Cor_tmp.shape[0]))
         Cor_Z_clusters_nonMissing.append(Cor_tmp)
         inv_Z_cluster_nonMissing.append(cholesky_inv)
-        inv_Z_cluster_proposal_nonMissing.append((np.diag(np.repeat(1, Cor_tmp.shape[0])),np.repeat(1,Cor_tmp.shape[0])))
+        inv_Z_cluster_proposal_nonMissing.append((cholesky(sigma_Z_cluster_proposal_nonMissing[i],lower=False),np.repeat(1,np.sum(nonMissing_1t_cluster[i]))))           
 
    current_lik = utils.theta_c_update_mixture_me_likelihood_1t(Z_onetime, theta_c, 1, Cluster_which, 
                                     S_clusters_nonMissing, nonMissing_1t_cluster)
