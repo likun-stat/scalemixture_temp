@@ -60,7 +60,7 @@ if __name__ == "__main__":
    thinning = 10; echo_interval = 50; n_updates = 40001
   
    # Load data input
-   with open('Temp_data_input_num_cluster_10.pkl', 'rb') as f:
+   with open('Temp_data_input_num_cluster_15.pkl', 'rb') as f:
      Y = load(f)
      cen = load(f)
      cen_above = load(f)
@@ -71,6 +71,7 @@ if __name__ == "__main__":
      sigma_m_beta_loc1_cluster = load(f)
      sigma_m_beta_loc2_cluster = load(f)
      sigma_m_beta_loc3_cluster = load(f)
+     sigma_m_beta_loc4_cluster = load(f)
      sigma_m_beta_logscale0_cluster = load(f)
      sigma_m_beta_logscale1_cluster = load(f)
      sigma_m_beta_logscale2_cluster = load(f)
@@ -107,6 +108,7 @@ if __name__ == "__main__":
    hyper_params_sbeta_loc1 = 1
    hyper_params_sbeta_loc2 = 1
    hyper_params_sbeta_loc3 = 1
+   hyper_params_sbeta_loc4 = 1
    hyper_params_sbeta_logscale0 = 1
    hyper_params_sbeta_logscale1 = 1
    hyper_params_sbeta_logscale2 = 1
@@ -135,6 +137,7 @@ if __name__ == "__main__":
    loc1 = initial_values['loc1']
    loc2 = initial_values['loc2']
    loc3 = initial_values['loc3']
+   loc4 = initial_values['loc4']
    logscale0 = initial_values['logscale0']
    logscale1 = initial_values['logscale1']
    logscale2 = initial_values['logscale2']
@@ -143,11 +146,13 @@ if __name__ == "__main__":
    WMGHGs = initial_values['WMGHGs']
    PDSI = initial_values['PDSI']
    ELI_summer_average = initial_values['ELI_summer_average']
+   urban = initial_values['urban']
    
    beta_loc0 = initial_values['beta_loc0']
    beta_loc1 = initial_values['beta_loc1']
    beta_loc2 = initial_values['beta_loc2']
    beta_loc3 = initial_values['beta_loc3']
+   beta_loc4 = initial_values['beta_loc4']
    beta_logscale0 = initial_values['beta_logscale0']
    beta_logscale1 = initial_values['beta_logscale1']
    beta_logscale2 = initial_values['beta_logscale2']
@@ -163,6 +168,7 @@ if __name__ == "__main__":
    sbeta_loc1 = initial_values['sbeta_loc1']
    sbeta_loc2 = initial_values['sbeta_loc2']
    sbeta_loc3 = initial_values['sbeta_loc3']
+   sbeta_loc4 = initial_values['sbeta_loc4']
    sbeta_logscale0 = initial_values['sbeta_logscale0']
    sbeta_logscale1 = initial_values['sbeta_logscale1']
    sbeta_logscale2 = initial_values['sbeta_logscale2']
@@ -180,7 +186,7 @@ if __name__ == "__main__":
       sys.exit("Make sure the number of cpus (N) = number of time replicates (n_t), i.e.\n     srun -N python scalemix_sampler.py")
    n_covariates = len(beta_loc0)
    Dist = initial_values['Dist']
-   n_updates_thinned = np.int(np.ceil(n_updates/thinning))
+   n_updates_thinned = int(np.ceil(n_updates/thinning))
    wh_to_plot_Xs = n_s*np.array([0.25,0.5,0.75])
    wh_to_plot_Xs = wh_to_plot_Xs.astype(int)
 
@@ -232,7 +238,13 @@ if __name__ == "__main__":
        sigma_beta_loc3_cluster_proposal.append(np.diag(np.repeat(1, sum(which_tmp))))
        inv_beta_loc3_cluster_proposal.append((np.diag(np.repeat(1, sum(which_tmp))),np.repeat(1,sum(which_tmp))))       
     
-
+   sigma_beta_loc4_cluster_proposal=list()
+   inv_beta_loc4_cluster_proposal=list()
+   for i in np.arange(n_beta_clusters):
+       which_tmp = betaCluster_which[i]
+       sigma_beta_loc4_cluster_proposal.append(np.diag(np.repeat(1, sum(which_tmp))))
+       inv_beta_loc4_cluster_proposal.append((np.diag(np.repeat(1, sum(which_tmp))),np.repeat(1,sum(which_tmp))))       
+  
    sigma_beta_logscale0_cluster_proposal=list()
    inv_beta_logscale0_cluster_proposal=list()
    for i in np.arange(n_beta_clusters):
@@ -292,13 +304,15 @@ if __name__ == "__main__":
    loc1 = Design_mat @beta_loc1
    loc2 = Design_mat @beta_loc2
    loc3 = Design_mat @beta_loc3
+   loc4 = Design_mat @beta_loc4
    logscale0 = Design_mat @beta_logscale0
    logscale1 = Design_mat @beta_logscale1
    logscale2 = Design_mat @beta_logscale2
    shape = Design_mat @beta_shape
    
    Loc = np.tile(loc0, n_t) + np.tile(loc1, n_t)*np.repeat(WMGHGs,n_s) + np.tile(loc2, 
-        n_t)*PDSI.flatten(order='F') + np.tile(loc3, n_t)*np.repeat(ELI_summer_average,n_s)
+        n_t)*PDSI.flatten(order='F') + np.tile(loc3, n_t)*np.repeat(ELI_summer_average,
+        n_s) + np.tile(loc4,n_t)*urban.flatten(order='F')
    Loc = Loc.reshape((n_s,n_t),order='F')
 
    Scale = np.exp(np.tile(logscale0, n_t) + np.tile(logscale1, n_t)*np.repeat(WMGHGs,
@@ -334,6 +348,8 @@ if __name__ == "__main__":
      loc2_trace[0,:] = loc2
      loc3_trace = np.empty((n_updates_thinned,n_s)); loc3_trace[:] = np.nan
      loc3_trace[0,:] = loc3
+     loc4_trace = np.empty((n_updates_thinned,n_s)); loc4_trace[:] = np.nan
+     loc4_trace[0,:] = loc4
      logscale0_trace = np.empty((n_updates_thinned,n_s)); logscale0_trace[:] = np.nan
      logscale0_trace[0,:] = logscale0
      logscale1_trace = np.empty((n_updates_thinned,n_s)); logscale1_trace[:] = np.nan
@@ -351,6 +367,8 @@ if __name__ == "__main__":
      beta_loc2_trace[:,0] = beta_loc2
      beta_loc3_trace = np.empty((n_covariates,n_updates_thinned)); beta_loc3_trace[:] = np.nan
      beta_loc3_trace[:,0] = beta_loc3
+     beta_loc4_trace = np.empty((n_covariates,n_updates_thinned)); beta_loc4_trace[:] = np.nan
+     beta_loc4_trace[:,0] = beta_loc4
      beta_logscale0_trace = np.empty((n_covariates,n_updates_thinned)); beta_logscale0_trace[:] = np.nan
      beta_logscale0_trace[:,0] = beta_logscale0
      beta_logscale1_trace = np.empty((n_covariates,n_updates_thinned)); beta_logscale1_trace[:] = np.nan
@@ -377,6 +395,8 @@ if __name__ == "__main__":
      sigma_sbeta_loc2_trace[0] = sbeta_loc2
      sigma_sbeta_loc3_trace = np.empty(n_updates_thinned); sigma_sbeta_loc3_trace[:] = np.nan
      sigma_sbeta_loc3_trace[0] = sbeta_loc3
+     sigma_sbeta_loc4_trace = np.empty(n_updates_thinned); sigma_sbeta_loc4_trace[:] = np.nan
+     sigma_sbeta_loc4_trace[0] = sbeta_loc4
      sigma_sbeta_logscale0_trace = np.empty(n_updates_thinned); sigma_sbeta_logscale0_trace[:] = np.nan
      sigma_sbeta_logscale0_trace[0] = sbeta_logscale0
      sigma_sbeta_logscale1_trace = np.empty(n_updates_thinned); sigma_sbeta_logscale1_trace[:] = np.nan
@@ -390,6 +410,7 @@ if __name__ == "__main__":
      beta_loc1_within_thinning = np.empty((n_covariates,thinning)); beta_loc1_within_thinning[:] = np.nan
      beta_loc2_within_thinning = np.empty((n_covariates,thinning)); beta_loc2_within_thinning[:] = np.nan
      beta_loc3_within_thinning = np.empty((n_covariates,thinning)); beta_loc3_within_thinning[:] = np.nan
+     beta_loc4_within_thinning = np.empty((n_covariates,thinning)); beta_loc4_within_thinning[:] = np.nan
 
      beta_logscale0_within_thinning = np.empty((n_covariates,thinning)); beta_logscale0_within_thinning[:] = np.nan
      beta_logscale1_within_thinning = np.empty((n_covariates,thinning)); beta_logscale1_within_thinning[:] = np.nan
@@ -404,6 +425,7 @@ if __name__ == "__main__":
      beta_loc1_accept = np.repeat(0,n_beta_clusters)
      beta_loc2_accept = np.repeat(0,n_beta_clusters)
      beta_loc3_accept = np.repeat(0,n_beta_clusters)
+     beta_loc4_accept = np.repeat(0,n_beta_clusters)
      beta_logscale0_accept = np.repeat(0,n_beta_clusters)
      beta_logscale1_accept = np.repeat(0,n_beta_clusters)
      beta_logscale2_accept = np.repeat(0,n_beta_clusters)
@@ -418,6 +440,7 @@ if __name__ == "__main__":
      sbeta_loc1_accept = 0
      sbeta_loc2_accept = 0
      sbeta_loc3_accept = 0
+     sbeta_loc4_accept = 0
      sbeta_logscale0_accept = 0
      sbeta_logscale1_accept = 0
      sbeta_logscale2_accept = 0
@@ -566,7 +589,7 @@ if __name__ == "__main__":
            for cluster_num in np.arange(n_beta_clusters):
                beta_loc0_accept[cluster_num] += utils.update_beta_loc0_GEV_one_cluster_interp(beta_loc0, betaCluster_which, cluster_num, inv_beta_loc0_cluster_proposal,
                                                                             Design_mat, sbeta_loc0, Y, X_s, cen, cen_above, prob_below, prob_above, delta, tau_sqd,
-                                                                            loc1, loc2, loc3, Scale, Shape, WMGHGs, PDSI, ELI_summer_average, xp, den_p, thresh_X, thresh_X_above, 
+                                                                            loc1, loc2, loc3, loc4, Scale, Shape, WMGHGs, PDSI, ELI_summer_average, urban, xp, den_p, thresh_X, thresh_X_above, 
                                                                             sigma_m_beta_loc0_cluster[cluster_num], random_generator)
            beta_loc0_within_thinning[:, index_within] = beta_loc0
            loc0 = Design_mat @beta_loc0
@@ -576,7 +599,7 @@ if __name__ == "__main__":
            for cluster_num in np.arange(n_beta_clusters):
                beta_loc1_accept[cluster_num] += utils.update_beta_loc1_GEV_one_cluster_interp(beta_loc1, betaCluster_which, cluster_num, inv_beta_loc1_cluster_proposal,
                                                                             Design_mat, sbeta_loc1, Y, X_s, cen, cen_above, prob_below, prob_above, delta, tau_sqd,
-                                                                            loc0, loc2, loc3, Scale, Shape, WMGHGs, PDSI, ELI_summer_average, xp, den_p, thresh_X, thresh_X_above,
+                                                                            loc0, loc2, loc3, loc4, Scale, Shape, WMGHGs, PDSI, ELI_summer_average, urban, xp, den_p, thresh_X, thresh_X_above,
                                                                             sigma_m_beta_loc1_cluster[cluster_num], random_generator)
            beta_loc1_within_thinning[:, index_within] = beta_loc1
            loc1 = Design_mat @beta_loc1
@@ -586,7 +609,7 @@ if __name__ == "__main__":
            for cluster_num in np.arange(n_beta_clusters):
                beta_loc2_accept[cluster_num] += utils.update_beta_loc2_GEV_one_cluster_interp(beta_loc2, betaCluster_which, cluster_num, inv_beta_loc2_cluster_proposal,
                                                                             Design_mat, sbeta_loc2, Y, X_s, cen, cen_above, prob_below, prob_above, delta, tau_sqd,
-                                                                            loc0, loc1, loc3, Scale, Shape, WMGHGs, PDSI, ELI_summer_average, xp, den_p, thresh_X, thresh_X_above,
+                                                                            loc0, loc1, loc3, loc4, Scale, Shape, WMGHGs, PDSI, ELI_summer_average, urban, xp, den_p, thresh_X, thresh_X_above,
                                                                             sigma_m_beta_loc2_cluster[cluster_num], random_generator)
            beta_loc2_within_thinning[:, index_within] = beta_loc2
            loc2 = Design_mat @beta_loc2
@@ -595,13 +618,23 @@ if __name__ == "__main__":
            for cluster_num in np.arange(n_beta_clusters):
                beta_loc3_accept[cluster_num] += utils.update_beta_loc3_GEV_one_cluster_interp(beta_loc3, betaCluster_which, cluster_num, inv_beta_loc3_cluster_proposal,
                                                                             Design_mat, sbeta_loc3, Y, X_s, cen, cen_above, prob_below, prob_above, delta, tau_sqd,
-                                                                            loc0, loc1, loc2, Scale, Shape, WMGHGs, PDSI, ELI_summer_average, xp, den_p, thresh_X, thresh_X_above,
+                                                                            loc0, loc1, loc2, loc4, Scale, Shape, WMGHGs, PDSI, ELI_summer_average, urban, xp, den_p, thresh_X, thresh_X_above,
                                                                             sigma_m_beta_loc3_cluster[cluster_num], random_generator)
            beta_loc3_within_thinning[:, index_within] = beta_loc3
            loc3 = Design_mat @beta_loc3
            
-           Loc = np.tile(loc0, n_t) + np.tile(loc1, n_t)*np.repeat(WMGHGs,n_s) + np.tile(loc2,
-                    n_t)*PDSI.flatten(order='F') + np.tile(loc3, n_t)*np.repeat(ELI_summer_average,n_s)
+           # Update beta_loc4
+           for cluster_num in np.arange(n_beta_clusters):
+               beta_loc4_accept[cluster_num] += utils.update_beta_loc4_GEV_one_cluster_interp(beta_loc4, betaCluster_which, cluster_num, inv_beta_loc4_cluster_proposal,
+                                                                            Design_mat, sbeta_loc4, Y, X_s, cen, cen_above, prob_below, prob_above, delta, tau_sqd,
+                                                                            loc0, loc1, loc2, loc3, Scale, Shape, WMGHGs, PDSI, ELI_summer_average, urban, xp, den_p, thresh_X, thresh_X_above,
+                                                                            sigma_m_beta_loc4_cluster[cluster_num], random_generator)
+           beta_loc4_within_thinning[:, index_within] = beta_loc4
+           loc4 = Design_mat @beta_loc4
+           
+           Loc = np.tile(loc0, n_t) + np.tile(loc1, n_t)*np.repeat(WMGHGs,n_s) + np.tile(loc2, 
+                  n_t)*PDSI.flatten(order='F') + np.tile(loc3, n_t)*np.repeat(ELI_summer_average,
+                  n_s) + np.tile(loc4,n_t)*urban.flatten(order='F')
            Loc = Loc.reshape((n_s,n_t),order='F')
            
            # Update beta_logscale0  
@@ -683,6 +716,15 @@ if __name__ == "__main__":
            sbeta_loc3_accept = sbeta_loc3_accept + Metr_sbeta_loc3['acc_prob']
            sbeta_loc3 = Metr_sbeta_loc3['trace'][0,1]
            
+           # Update sbeta_loc4
+           Metr_sbeta_loc4 = sampler.static_metr(beta_loc4, sbeta_loc4, utils.dmvn_diag, priors.half_cauchy,
+                   hyper_params_sbeta_loc4, 2,
+                   random_generator,
+                   np.nan, sigma_m['sbeta_loc4'], False,
+                   0)
+           sbeta_loc4_accept = sbeta_loc4_accept + Metr_sbeta_loc4['acc_prob']
+           sbeta_loc4 = Metr_sbeta_loc4['trace'][0,1]
+           
            # Update sbeta_logscale0
            Metr_sbeta_logscale0 = sampler.static_metr(beta_logscale0, sbeta_logscale0, utils.dmvn_diag, priors.half_cauchy,
                    hyper_params_sbeta_logscale0, 2,
@@ -759,6 +801,7 @@ if __name__ == "__main__":
                beta_loc1_trace[:,index] = beta_loc1
                beta_loc2_trace[:,index] = beta_loc2
                beta_loc3_trace[:,index] = beta_loc3
+               beta_loc4_trace[:,index] = beta_loc4
                beta_logscale0_trace[:,index] = beta_logscale0
                beta_logscale1_trace[:,index] = beta_logscale1
                beta_logscale2_trace[:,index] = beta_logscale2
@@ -767,6 +810,7 @@ if __name__ == "__main__":
                sigma_sbeta_loc1_trace[index] = sbeta_loc1
                sigma_sbeta_loc2_trace[index] = sbeta_loc2
                sigma_sbeta_loc3_trace[index] = sbeta_loc3
+               sigma_sbeta_loc4_trace[index] = sbeta_loc4
                sigma_sbeta_logscale0_trace[index] = sbeta_logscale0
                sigma_sbeta_logscale1_trace[index] = sbeta_logscale1
                sigma_sbeta_logscale2_trace[index] = sbeta_logscale2
@@ -781,6 +825,7 @@ if __name__ == "__main__":
                loc1_trace[index,:] = loc1
                loc2_trace[index,:] = loc2
                loc3_trace[index,:] = loc3
+               loc4_trace[index,:] = loc4
                logscale0_trace[index,:] = logscale0
                logscale1_trace[index,:] = logscale1
                logscale2_trace[index,:] = logscale2
@@ -859,6 +904,14 @@ if __name__ == "__main__":
                    sigma_beta_loc3_cluster_proposal[i] = sigma_beta_loc3_cluster_proposal[i] + gamma2*(np.cov(beta_loc3_within_thinning[which_tmp,:]) - sigma_beta_loc3_cluster_proposal[i])
                    inv_beta_loc3_cluster_proposal.append((cholesky(sigma_beta_loc3_cluster_proposal[i],lower=False),np.repeat(1,np.sum(which_tmp))))           
           
+               sigma_m_beta_loc4_cluster[:] = np.exp(np.log(sigma_m_beta_loc4_cluster) + gamma1*(beta_loc4_accept/thinning - r_opt_md))
+               beta_loc4_accept[:] = np.repeat(0,n_beta_clusters)
+               inv_beta_loc4_cluster_proposal=list()
+               for i in np.arange(n_beta_clusters):
+                   which_tmp = betaCluster_which[i]
+                   sigma_beta_loc4_cluster_proposal[i] = sigma_beta_loc4_cluster_proposal[i] + gamma2*(np.cov(beta_loc4_within_thinning[which_tmp,:]) - sigma_beta_loc4_cluster_proposal[i])
+                   inv_beta_loc4_cluster_proposal.append((cholesky(sigma_beta_loc4_cluster_proposal[i],lower=False),np.repeat(1,np.sum(which_tmp))))           
+    
                sigma_m_beta_logscale0_cluster[:] = np.exp(np.log(sigma_m_beta_logscale0_cluster) + gamma1*(beta_logscale0_accept/thinning - r_opt_md))
                beta_logscale0_accept[:] = np.repeat(0,n_beta_clusters)
                inv_beta_logscale0_cluster_proposal=list()
@@ -909,6 +962,9 @@ if __name__ == "__main__":
                sigma_m['sbeta_loc3'] = np.exp(np.log(sigma_m['sbeta_loc3']) + gamma1*(sbeta_loc3_accept/thinning - r_opt_1d))
                sbeta_loc3_accept = 0
                
+               sigma_m['sbeta_loc4'] = np.exp(np.log(sigma_m['sbeta_loc4']) + gamma1*(sbeta_loc4_accept/thinning - r_opt_1d))
+               sbeta_loc4_accept = 0
+               
                sigma_m['sbeta_logscale0'] = np.exp(np.log(sigma_m['sbeta_logscale0']) + gamma1*(sbeta_logscale0_accept/thinning - r_opt_1d))
                sbeta_logscale0_accept = 0
                
@@ -943,6 +999,7 @@ if __name__ == "__main__":
                     'loc1':loc1,
                     'loc2':loc2,
                     'loc3':loc3,
+                    'loc4':loc4,
                     'logscale0':logscale0,
                     'logscale1':logscale1,
                     'logscale2':logscale2,
@@ -951,10 +1008,12 @@ if __name__ == "__main__":
                     'WMGHGs':WMGHGs,
                     'PDSI':PDSI,
                     'ELI_summer_average':ELI_summer_average,
+                    'urban':urban,
                     'beta_loc0':beta_loc0,
                     'beta_loc1':beta_loc1,
                     'beta_loc2':beta_loc2,
                     'beta_loc3':beta_loc3,
+                    'beta_loc4':beta_loc4,
                     'beta_logscale0':beta_logscale0,
                     'beta_logscale1':beta_logscale0,
                     'beta_logscale2':beta_logscale0,
@@ -967,6 +1026,7 @@ if __name__ == "__main__":
                     'sbeta_loc1':sbeta_loc1,
                     'sbeta_loc2':sbeta_loc2,
                     'sbeta_loc3':sbeta_loc3,
+                    'sbeta_loc4':sbeta_loc4,
                     'sbeta_logscale0':sbeta_logscale0,
                     'sbeta_logscale1':sbeta_logscale1,
                     'sbeta_logscale2':sbeta_logscale2,
@@ -990,6 +1050,7 @@ if __name__ == "__main__":
                    dump(beta_loc1_trace, f)
                    dump(beta_loc2_trace, f)
                    dump(beta_loc3_trace, f)
+                   dump(beta_loc4_trace, f)
                    dump(beta_logscale0_trace, f)
                    dump(beta_logscale1_trace, f)
                    dump(beta_logscale2_trace, f)
@@ -998,6 +1059,7 @@ if __name__ == "__main__":
                    dump(sigma_sbeta_loc1_trace,f)
                    dump(sigma_sbeta_loc2_trace,f)
                    dump(sigma_sbeta_loc3_trace,f)
+                   dump(sigma_sbeta_loc4_trace,f)
                    dump(sigma_sbeta_logscale0_trace,f)
                    dump(sigma_sbeta_logscale1_trace,f)
                    dump(sigma_sbeta_logscale2_trace,f)
@@ -1012,6 +1074,7 @@ if __name__ == "__main__":
                    dump(loc1_trace,f)
                    dump(loc2_trace,f)
                    dump(loc3_trace,f)
+                   dump(loc4_trace,f)
                    dump(logscale0_trace,f)
                    dump(logscale1_trace,f)
                    dump(logscale2_trace,f)
@@ -1029,6 +1092,7 @@ if __name__ == "__main__":
                    dump(sigma_m_beta_loc1_cluster, f)
                    dump(sigma_m_beta_loc2_cluster, f)
                    dump(sigma_m_beta_loc3_cluster, f)
+                   dump(sigma_m_beta_loc4_cluster, f)
                    dump(sigma_m_beta_logscale0_cluster, f)
                    dump(sigma_m_beta_logscale1_cluster, f)
                    dump(sigma_m_beta_logscale2_cluster, f)
@@ -1038,6 +1102,7 @@ if __name__ == "__main__":
                    dump(sigma_beta_loc1_cluster_proposal, f)
                    dump(sigma_beta_loc2_cluster_proposal, f)
                    dump(sigma_beta_loc3_cluster_proposal, f)
+                   dump(sigma_beta_loc4_cluster_proposal, f)
                    dump(sigma_beta_logscale0_cluster_proposal, f)
                    dump(sigma_beta_logscale1_cluster_proposal, f)
                    dump(sigma_beta_logscale2_cluster_proposal, f)

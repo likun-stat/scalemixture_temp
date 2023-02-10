@@ -863,7 +863,7 @@ def marg_transform_data_mixture_me_likelihood_interp(Y, X, X_s, cen, cen_above,
                )+dgev(Y[~cen & ~cen_above], Loc=Loc[~cen & ~cen_above], Scale=Scale[~cen & ~cen_above], Shape=Shape[~cen & ~cen_above], log=True
                )-np.log(dmixture_me_interpo(X[~cen & ~cen_above], xp, den_p))
      
-  return np.nansum(ll)
+  return np.nanmean(ll)
 
 ##
 ## -------------------------------------------------------------------------- ##
@@ -1572,7 +1572,7 @@ def loc0_vec_gev_update_mixture_me_likelihood(data, params, X_s, cen, cen_above,
                                     Loc, Scale, Shape, delta, tau_sqd, thresh_X, thresh_X_above)
   return ll
 
-def beta_loc0_vec_gev_update_mixture_me_likelihood_interp(data, params, Design_mat, sbeta_loc0, X_s, cen, cen_above, prob_below, prob_above, delta, tau_sqd, loc1, loc2, loc3, Scale, Shape, WMGHGs, PDSI, ELI_summer_average, xp, den_p, thresh_X, thresh_X_above):
+def beta_loc0_vec_gev_update_mixture_me_likelihood_interp(data, params, Design_mat, sbeta_loc0, X_s, cen, cen_above, prob_below, prob_above, delta, tau_sqd, loc1, loc2, loc3, loc4, Scale, Shape, WMGHGs, PDSI, ELI_summer_average, urban, xp, den_p, thresh_X, thresh_X_above):
   Y = data
   
   if len(X_s.shape)==1:
@@ -1581,7 +1581,8 @@ def beta_loc0_vec_gev_update_mixture_me_likelihood_interp(data, params, Design_m
   n_s = X_s.shape[0]
   loc0 = Design_mat @params
   Loc = np.tile(loc0, n_t) + np.tile(loc1, n_t)*np.repeat(WMGHGs,n_s) + np.tile(loc2,
-        n_t)*PDSI.flatten(order='F') + np.tile(loc3, n_t)*np.repeat(ELI_summer_average,n_s)
+        n_t)*PDSI.flatten(order='F') + np.tile(loc3, n_t)*np.repeat(ELI_summer_average,
+        n_s) + np.tile(loc4,n_t)*urban.flatten(order='F')
   Loc = Loc.reshape((n_s,n_t),order='F')
   
   max_support = Loc - Scale/Shape
@@ -1674,7 +1675,7 @@ def update_loc0_GEV_one_cluster(loc0, Cluster_which, cluster_num, Cor_loc0_clust
 
 def update_beta_loc0_GEV_one_cluster_interp(beta_loc0, Cluster_which, cluster_num, inv_loc0_cluster_proposal,
                                  Design_mat, sbeta_loc0, Y, X_s, cen, cen_above, prob_below, prob_above, delta, tau_sqd,
-                                 loc1, loc2, loc3, Scale, Shape, WMGHGs, PDSI, ELI_summer_average, xp, den_p, thresh_X, thresh_X_above,
+                                 loc1, loc2, loc3, loc4, Scale, Shape, WMGHGs, PDSI, ELI_summer_average, urban, xp, den_p, thresh_X, thresh_X_above,
                                  lambda_current_cluster, random_generator):
     # 1. Obtain the current parameters in the chosen cluster
     which = Cluster_which[cluster_num]
@@ -1693,9 +1694,9 @@ def update_beta_loc0_GEV_one_cluster_interp(beta_loc0, Cluster_which, cluster_nu
     # loc0_star = np.empty(loc0.shape[0]); loc0_star[:] = loc0
     # loc0_star[which] = params_star
     log_num = beta_loc0_vec_gev_update_mixture_me_likelihood_interp(Y, params_star, Design_mat, sbeta_loc0, X_s, cen, cen_above, prob_below, prob_above,
-                         delta, tau_sqd, loc1, loc2, loc3, Scale, Shape, WMGHGs, PDSI, ELI_summer_average, xp, den_p, thresh_X, thresh_X_above)
+                         delta, tau_sqd, loc1, loc2, loc3, loc4, Scale, Shape, WMGHGs, PDSI, ELI_summer_average, urban, xp, den_p, thresh_X, thresh_X_above)
     log_denom = beta_loc0_vec_gev_update_mixture_me_likelihood_interp(Y, current_params, Design_mat, sbeta_loc0, X_s, cen, cen_above, prob_below, prob_above,
-                         delta, tau_sqd, loc1, loc2, loc3, Scale, Shape, WMGHGs, PDSI, ELI_summer_average, xp, den_p, thresh_X, thresh_X_above)
+                         delta, tau_sqd, loc1, loc2, loc3, loc4, Scale, Shape, WMGHGs, PDSI, ELI_summer_average, urban, xp, den_p, thresh_X, thresh_X_above)
     
     # 4. Decide whether to update or not
     r = np.exp(log_num - log_denom)
@@ -1745,7 +1746,7 @@ def loc1_vec_gev_update_mixture_me_likelihood(data, params, X_s, cen, cen_above,
   return ll
 
 
-def beta_loc1_vec_gev_update_mixture_me_likelihood_interp(data, params, Design_mat, sbeta_loc1, X_s, cen, cen_above, prob_below, prob_above, delta, tau_sqd, loc0, loc2, loc3, Scale, Shape, WMGHGs, PDSI, ELI_summer_average, xp, den_p, thresh_X, thresh_X_above):
+def beta_loc1_vec_gev_update_mixture_me_likelihood_interp(data, params, Design_mat, sbeta_loc1, X_s, cen, cen_above, prob_below, prob_above, delta, tau_sqd, loc0, loc2, loc3, loc4, Scale, Shape, WMGHGs, PDSI, ELI_summer_average, urban, xp, den_p, thresh_X, thresh_X_above):
   
   Y = data
   
@@ -1755,7 +1756,8 @@ def beta_loc1_vec_gev_update_mixture_me_likelihood_interp(data, params, Design_m
   n_s = X_s.shape[0]
   loc1 = Design_mat @params
   Loc = np.tile(loc0, n_t) + np.tile(loc1, n_t)*np.repeat(WMGHGs,n_s) + np.tile(loc2,
-        n_t)*PDSI.flatten(order='F') + np.tile(loc3, n_t)*np.repeat(ELI_summer_average,n_s)
+        n_t)*PDSI.flatten(order='F') + np.tile(loc3, n_t)*np.repeat(ELI_summer_average,
+        n_s) + np.tile(loc4,n_t)*urban.flatten(order='F')
   Loc = Loc.reshape((n_s,n_t),order='F')
   
   max_support = Loc - Scale/Shape
@@ -1775,7 +1777,7 @@ def beta_loc1_vec_gev_update_mixture_me_likelihood_interp(data, params, Design_m
   return ll
 
 
-def beta_loc2_vec_gev_update_mixture_me_likelihood_interp(data, params, Design_mat, sbeta_loc2, X_s, cen, cen_above, prob_below, prob_above, delta, tau_sqd, loc0, loc1, loc3, Scale, Shape, WMGHGs, PDSI, ELI_summer_average, xp, den_p, thresh_X, thresh_X_above):
+def beta_loc2_vec_gev_update_mixture_me_likelihood_interp(data, params, Design_mat, sbeta_loc2, X_s, cen, cen_above, prob_below, prob_above, delta, tau_sqd, loc0, loc1, loc3, loc4, Scale, Shape, WMGHGs, PDSI, ELI_summer_average, urban, xp, den_p, thresh_X, thresh_X_above):
   
   Y = data
   
@@ -1785,7 +1787,8 @@ def beta_loc2_vec_gev_update_mixture_me_likelihood_interp(data, params, Design_m
   n_s = X_s.shape[0]
   loc2 = Design_mat @params
   Loc = np.tile(loc0, n_t) + np.tile(loc1, n_t)*np.repeat(WMGHGs,n_s) + np.tile(loc2,
-        n_t)*PDSI.flatten(order='F') + np.tile(loc3, n_t)*np.repeat(ELI_summer_average,n_s)
+        n_t)*PDSI.flatten(order='F') + np.tile(loc3, n_t)*np.repeat(ELI_summer_average,
+        n_s) + np.tile(loc4,n_t)*urban.flatten(order='F')
   Loc = Loc.reshape((n_s,n_t),order='F')
   
   max_support = Loc - Scale/Shape
@@ -1805,7 +1808,7 @@ def beta_loc2_vec_gev_update_mixture_me_likelihood_interp(data, params, Design_m
   return ll
 
 
-def beta_loc3_vec_gev_update_mixture_me_likelihood_interp(data, params, Design_mat, sbeta_loc3, X_s, cen, cen_above, prob_below, prob_above, delta, tau_sqd, loc0, loc1, loc2, Scale, Shape, WMGHGs, PDSI, ELI_summer_average, xp, den_p, thresh_X, thresh_X_above):
+def beta_loc3_vec_gev_update_mixture_me_likelihood_interp(data, params, Design_mat, sbeta_loc3, X_s, cen, cen_above, prob_below, prob_above, delta, tau_sqd, loc0, loc1, loc2, loc4, Scale, Shape, WMGHGs, PDSI, ELI_summer_average, urban, xp, den_p, thresh_X, thresh_X_above):
   
   Y = data
   
@@ -1815,7 +1818,8 @@ def beta_loc3_vec_gev_update_mixture_me_likelihood_interp(data, params, Design_m
   n_s = X_s.shape[0]
   loc3 = Design_mat @params
   Loc = np.tile(loc0, n_t) + np.tile(loc1, n_t)*np.repeat(WMGHGs,n_s) + np.tile(loc2,
-        n_t)*PDSI.flatten(order='F') + np.tile(loc3, n_t)*np.repeat(ELI_summer_average,n_s)
+        n_t)*PDSI.flatten(order='F') + np.tile(loc3, n_t)*np.repeat(ELI_summer_average,
+        n_s) + np.tile(loc4,n_t)*urban.flatten(order='F')
   Loc = Loc.reshape((n_s,n_t),order='F')
   
   max_support = Loc - Scale/Shape
@@ -1833,6 +1837,40 @@ def beta_loc3_vec_gev_update_mixture_me_likelihood_interp(data, params, Design_m
                 Loc, Scale, Shape, delta, tau_sqd, xp, den_p, thresh_X, thresh_X_above) + dmvn_diag(
                     params, sbeta_loc3)
   return ll
+
+
+def beta_loc4_vec_gev_update_mixture_me_likelihood_interp(data, params, Design_mat, sbeta_loc4, X_s, cen, cen_above, prob_below, prob_above, delta, tau_sqd, loc0, loc1, loc2, loc3, Scale, Shape, WMGHGs, PDSI, ELI_summer_average, urban, xp, den_p, thresh_X, thresh_X_above):
+  
+  Y = data
+  
+  if len(X_s.shape)==1:
+      X_s = X_s.reshape((X_s.shape[0],1))
+  n_t = X_s.shape[1]
+  n_s = X_s.shape[0]
+  loc4 = Design_mat @params
+  Loc = np.tile(loc0, n_t) + np.tile(loc1, n_t)*np.repeat(WMGHGs,n_s) + np.tile(loc2,
+        n_t)*PDSI.flatten(order='F') + np.tile(loc3, n_t)*np.repeat(ELI_summer_average,
+        n_s) + np.tile(loc4,n_t)*urban.flatten(order='F')
+  Loc = Loc.reshape((n_s,n_t),order='F')
+  
+  max_support = Loc - Scale/Shape
+  max_support[Shape>0] = np.inf
+  
+  tmp=pgev(Y[~cen & ~cen_above], Loc[~cen & ~cen_above], Scale[~cen & ~cen_above], Shape[~cen & ~cen_above])
+  
+  # If the parameters imply support that is not consistent with the data,
+  # then reject the parameters.
+  if np.any(Y[~np.isnan(Y)] > max_support[~np.isnan(Y)]) or np.nanmin(tmp)<prob_below-0.001 or np.nanmax(tmp)>prob_above+0.001:
+      return -np.inf
+  
+  X = X_update(Y, cen, cen_above, delta, tau_sqd, Loc, Scale, Shape)
+  ll = marg_transform_data_mixture_me_likelihood_interp(Y, X, X_s, cen, cen_above, prob_below, prob_above,
+                Loc, Scale, Shape, delta, tau_sqd, xp, den_p, thresh_X, thresh_X_above) + dmvn_diag(
+                    params, sbeta_loc4)
+  return ll
+
+
+
 
 def mu_loc1_vec_gev_update_mixture_me_likelihood_interp(data, params, Design_mat, beta_loc1, sbeta_loc1, X_s, cen, cen_above, prob_below, prob_above,
                      delta, tau_sqd, loc0, Scale, Shape, Time, xp, den_p, thresh_X, thresh_X_above):
@@ -1910,7 +1948,7 @@ def update_loc1_GEV_one_cluster(loc1, Cluster_which, cluster_num, Cor_loc1_clust
 
 def update_beta_loc1_GEV_one_cluster_interp(beta_loc1, Cluster_which, cluster_num, inv_loc1_cluster_proposal,
                                  Design_mat, sbeta_loc1, Y, X_s, cen, cen_above, prob_below, prob_above, delta, tau_sqd,
-                                 loc0, loc2, loc3, Scale, Shape, WMGHGs, PDSI, ELI_summer_average, xp, den_p, thresh_X, thresh_X_above,
+                                 loc0, loc2, loc3, loc4, Scale, Shape, WMGHGs, PDSI, ELI_summer_average, urban, xp, den_p, thresh_X, thresh_X_above,
                                  lambda_current_cluster, random_generator):
     # 1. Obtain the current parameters in the chosen cluster
     which = Cluster_which[cluster_num]
@@ -1924,9 +1962,9 @@ def update_beta_loc1_GEV_one_cluster_interp(beta_loc1, Cluster_which, cluster_nu
     
     # 3. Calculate likelihoods
     log_num = beta_loc1_vec_gev_update_mixture_me_likelihood_interp(Y, params_star, Design_mat, sbeta_loc1, X_s, cen, cen_above, prob_below, prob_above,
-                         delta, tau_sqd, loc0, loc2, loc3, Scale, Shape, WMGHGs, PDSI, ELI_summer_average, xp, den_p, thresh_X, thresh_X_above)
+                         delta, tau_sqd, loc0, loc2, loc3, loc4, Scale, Shape, WMGHGs, PDSI, ELI_summer_average, urban, xp, den_p, thresh_X, thresh_X_above)
     log_denom = beta_loc1_vec_gev_update_mixture_me_likelihood_interp(Y, current_params, Design_mat, sbeta_loc1, X_s, cen, cen_above, prob_below, prob_above,
-                         delta, tau_sqd, loc0, loc2, loc3, Scale, Shape, WMGHGs, PDSI, ELI_summer_average, xp, den_p, thresh_X, thresh_X_above)
+                         delta, tau_sqd, loc0, loc2, loc3, loc4, Scale, Shape, WMGHGs, PDSI, ELI_summer_average, urban, xp, den_p, thresh_X, thresh_X_above)
     
     # 4. Decide whether to update or not
     r = np.exp(log_num - log_denom)
@@ -1942,7 +1980,7 @@ def update_beta_loc1_GEV_one_cluster_interp(beta_loc1, Cluster_which, cluster_nu
 
 def update_beta_loc2_GEV_one_cluster_interp(beta_loc2, Cluster_which, cluster_num, inv_loc2_cluster_proposal,
                                  Design_mat, sbeta_loc2, Y, X_s, cen, cen_above, prob_below, prob_above, delta, tau_sqd,
-                                 loc0, loc1, loc3, Scale, Shape, WMGHGs, PDSI, ELI_summer_average, xp, den_p, thresh_X, thresh_X_above,
+                                 loc0, loc1, loc3, loc4, Scale, Shape, WMGHGs, PDSI, ELI_summer_average, urban, xp, den_p, thresh_X, thresh_X_above,
                                  lambda_current_cluster, random_generator):
     # 1. Obtain the current parameters in the chosen cluster
     which = Cluster_which[cluster_num]
@@ -1956,9 +1994,9 @@ def update_beta_loc2_GEV_one_cluster_interp(beta_loc2, Cluster_which, cluster_nu
     
     # 3. Calculate likelihoods
     log_num = beta_loc2_vec_gev_update_mixture_me_likelihood_interp(Y, params_star, Design_mat, sbeta_loc2, X_s, cen, cen_above, prob_below, prob_above,
-                         delta, tau_sqd, loc0, loc1, loc3, Scale, Shape, WMGHGs, PDSI, ELI_summer_average, xp, den_p, thresh_X, thresh_X_above)
+                         delta, tau_sqd, loc0, loc1, loc3, loc4, Scale, Shape, WMGHGs, PDSI, ELI_summer_average, urban, xp, den_p, thresh_X, thresh_X_above)
     log_denom = beta_loc2_vec_gev_update_mixture_me_likelihood_interp(Y, current_params, Design_mat, sbeta_loc2, X_s, cen, cen_above, prob_below, prob_above,
-                         delta, tau_sqd, loc0, loc1, loc3, Scale, Shape, WMGHGs, PDSI, ELI_summer_average, xp, den_p, thresh_X, thresh_X_above)
+                         delta, tau_sqd, loc0, loc1, loc3, loc4, Scale, Shape, WMGHGs, PDSI, ELI_summer_average, urban, xp, den_p, thresh_X, thresh_X_above)
     
     # 4. Decide whether to update or not
     r = np.exp(log_num - log_denom)
@@ -1975,7 +2013,7 @@ def update_beta_loc2_GEV_one_cluster_interp(beta_loc2, Cluster_which, cluster_nu
 
 def update_beta_loc3_GEV_one_cluster_interp(beta_loc3, Cluster_which, cluster_num, inv_loc3_cluster_proposal,
                                  Design_mat, sbeta_loc3, Y, X_s, cen, cen_above, prob_below, prob_above, delta, tau_sqd,
-                                 loc0, loc1, loc2, Scale, Shape, WMGHGs, PDSI, ELI_summer_average, xp, den_p, thresh_X, thresh_X_above,
+                                 loc0, loc1, loc2, loc4, Scale, Shape, WMGHGs, PDSI, ELI_summer_average, urban, xp, den_p, thresh_X, thresh_X_above,
                                  lambda_current_cluster, random_generator):
     # 1. Obtain the current parameters in the chosen cluster
     which = Cluster_which[cluster_num]
@@ -1989,9 +2027,9 @@ def update_beta_loc3_GEV_one_cluster_interp(beta_loc3, Cluster_which, cluster_nu
     
     # 3. Calculate likelihoods
     log_num = beta_loc3_vec_gev_update_mixture_me_likelihood_interp(Y, params_star, Design_mat, sbeta_loc3, X_s, cen, cen_above, prob_below, prob_above,
-                         delta, tau_sqd, loc0, loc1, loc2, Scale, Shape, WMGHGs, PDSI, ELI_summer_average, xp, den_p, thresh_X, thresh_X_above)
+                         delta, tau_sqd, loc0, loc1, loc2, loc4, Scale, Shape, WMGHGs, PDSI, ELI_summer_average, urban,  xp, den_p, thresh_X, thresh_X_above)
     log_denom = beta_loc3_vec_gev_update_mixture_me_likelihood_interp(Y, current_params, Design_mat, sbeta_loc3, X_s, cen, cen_above, prob_below, prob_above,
-                         delta, tau_sqd, loc0, loc1, loc2, Scale, Shape, WMGHGs, PDSI, ELI_summer_average, xp, den_p, thresh_X, thresh_X_above)
+                         delta, tau_sqd, loc0, loc1, loc2, loc4, Scale, Shape, WMGHGs, PDSI, ELI_summer_average, urban, xp, den_p, thresh_X, thresh_X_above)
     
     # 4. Decide whether to update or not
     r = np.exp(log_num - log_denom)
@@ -1999,6 +2037,39 @@ def update_beta_loc3_GEV_one_cluster_interp(beta_loc3, Cluster_which, cluster_nu
         r = 0
     if random_generator.uniform(0,1,1)<r:
         beta_loc3[which] = params_star  # changes argument 'loc3' directly
+        accept = 1
+    
+    #result = (X_s,accept)
+    return accept
+    
+    
+    
+def update_beta_loc4_GEV_one_cluster_interp(beta_loc4, Cluster_which, cluster_num, inv_loc4_cluster_proposal,
+                                 Design_mat, sbeta_loc4, Y, X_s, cen, cen_above, prob_below, prob_above, delta, tau_sqd,
+                                 loc0, loc1, loc2, loc3, Scale, Shape, WMGHGs, PDSI, ELI_summer_average, urban, xp, den_p, thresh_X, thresh_X_above,
+                                 lambda_current_cluster, random_generator):
+    # 1. Obtain the current parameters in the chosen cluster
+    which = Cluster_which[cluster_num]
+    current_params = beta_loc4[which]
+    n_current_cluster = len(current_params)
+    accept = 0
+    
+    # 2. Propose parameters
+    tmp_parmas_star = np.matmul(np.linalg.inv(inv_loc4_cluster_proposal[cluster_num][0].T) , current_params) + lambda_current_cluster*random_generator.standard_normal(n_current_cluster)
+    params_star = np.matmul(inv_loc4_cluster_proposal[cluster_num][0].T , tmp_parmas_star)
+    
+    # 3. Calculate likelihoods
+    log_num = beta_loc4_vec_gev_update_mixture_me_likelihood_interp(Y, params_star, Design_mat, sbeta_loc4, X_s, cen, cen_above, prob_below, prob_above,
+                         delta, tau_sqd, loc0, loc1, loc2, loc3, Scale, Shape, WMGHGs, PDSI, ELI_summer_average, urban,  xp, den_p, thresh_X, thresh_X_above)
+    log_denom = beta_loc4_vec_gev_update_mixture_me_likelihood_interp(Y, current_params, Design_mat, sbeta_loc4, X_s, cen, cen_above, prob_below, prob_above,
+                         delta, tau_sqd, loc0, loc1, loc2, loc3, Scale, Shape, WMGHGs, PDSI, ELI_summer_average, urban, xp, den_p, thresh_X, thresh_X_above)
+    
+    # 4. Decide whether to update or not
+    r = np.exp(log_num - log_denom)
+    if ~np.isfinite(r):
+        r = 0
+    if random_generator.uniform(0,1,1)<r:
+        beta_loc4[which] = params_star  # changes argument 'loc4' directly
         accept = 1
     
     #result = (X_s,accept)
