@@ -96,7 +96,7 @@ if __name__ == "__main__":
   
    # Hyper parameters for the prior of the mixing distribution parameters and
    hyper_params_delta = np.array([0.1,0.7])
-   hyper_params_tau_sqd = np.array([0.1,0.1])
+   hyper_params_tau_sqd = np.array([20,0.1])
    hyper_params_theta_c = np.array([0, 20])
    
    # hyper_params_mu_loc0 = np.array([-100,100])

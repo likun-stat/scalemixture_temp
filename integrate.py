@@ -10,7 +10,7 @@ from scipy.special import gamma, kv
 import scipy.interpolate as interp
 from scipy.stats import genextreme
 import sys
-
+import warnings
 
 
 
@@ -862,8 +862,11 @@ def marg_transform_data_mixture_me_likelihood_interp(Y, X, X_s, cen, cen_above,
      ll[~cen & ~cen_above] = norm.logpdf(X[~cen & ~cen_above], loc=X_s[~cen & ~cen_above], scale=sd
                )+dgev(Y[~cen & ~cen_above], Loc=Loc[~cen & ~cen_above], Scale=Scale[~cen & ~cen_above], Shape=Shape[~cen & ~cen_above], log=True
                )-np.log(dmixture_me_interpo(X[~cen & ~cen_above], xp, den_p))
-     
-  return np.nanmean(ll)
+  
+  with warnings.catch_warnings():
+    warnings.simplefilter("ignore", category=RuntimeWarning)
+    res = np.nanmean(ll)
+  return res
 
 ##
 ## -------------------------------------------------------------------------- ##
